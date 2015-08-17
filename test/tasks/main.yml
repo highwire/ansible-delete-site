@@ -1,0 +1,34 @@
+- file: path=/opt/sites/{{ site_prefix }} state=directory
+
+- file: path=/etc/httpd/sites/{{ site_prefix }}.conf state=touch
+
+- name: 'Register the /opt/sites folder for the prefix'
+  shell: ls /opt/sites/{{ site_prefix }}
+  register: site_folder
+
+- name: 'Register the /etc/httpd/sites vhost'
+  shell: ls /etc/httpd/sites/{{ site_prefix }}.conf
+  register: vhost_file  
+
+- name: 'Register the /etc/httpd/sites vhost'
+  shell: cat /etc/httpd/sites/{{ site_prefix }}.conf
+  register: vhost_file_contents
+
+- pause: prompt="Hit enter if you are SURE you want to delete the site folder /opt/sites/{{ site_prefix }} AND apache configuration /etc/httpd/sites/{{ site_prefix }}.conf"
+
+- pause: prompt="I have to ask again are you really SURE you want to delete /opt/sites/{{ site_prefix }} AND apache configuration /etc/httpd/sites/{{ site_prefix }}.conf"
+
+- name: Removing /opt/sites/{{ site_prefix }}
+- file: path=/opt/sites/{{ site_prefix }} state=absent
+
+- name: Removing /etc/httpd/sites/{{ site_prefix }}.conf
+- file: path=/etc/httpd/sites/{{ site_prefix }}.conf state=absent
+
+- name: Check that our config is valid
+  command: service httpd configtest
+  register: result
+  ignore_errors: True
+
+- name: Restarting httpd
+  service: name=httpd state=restarted
+  when: result|success  

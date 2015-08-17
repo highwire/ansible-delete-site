@@ -1,0 +1,7 @@
+- hosts: all
+  remote_user: root
+  vars_prompt:
+    site_prefix: "what is the site prefix?"
+
+  roles:
+    - test
